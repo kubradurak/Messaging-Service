@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  messagingservicedb:
+    container_name: messagingservicedb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - messagingservicedb_volume:/data/db
+  messagingservice.api: 
+    container_name: messagingservice.api
+    environment: 
+    - ASPNETCORE_ENVIRONMENT=Development
+    - DatabaseSettings:ConnectionString=mongodb://messagingservicedb:27017
+    ports:
+      - "5000:80"
+    depends_on:
+      - messagingservicedb

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  messagingservicedb:
+    image: mongo
+  messagingservice.api: 
+    image: messaginservice_api_image
+    build: 
+      context: .
+      dockerfile: Messaging-Service.Api/Dockerfile
+volumes:
+  messagingservicedb_volume:
