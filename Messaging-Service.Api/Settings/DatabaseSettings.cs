@@ -7,5 +7,7 @@
         public string ConnectionString { get; set; }
         public string DatabaseName { get; set; }
         public string BlockUserCollections { get; set; }
+        public string UserActivityLogCollections { get; set; }
+
     }
 }

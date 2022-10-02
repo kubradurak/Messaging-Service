@@ -15,6 +15,7 @@ namespace Messaging_Service.Api.Mapping
             CreateMap<MessageHistoryItemDto, Message>().ReverseMap();
             CreateMap<MessageHistoryDto, Message>().ReverseMap();
             CreateMap<BlockUserDto, BlockUser>().ReverseMap();
+            CreateMap<UserActivityLogDto, UserActivityLog>().ReverseMap();
         }
     }
 }

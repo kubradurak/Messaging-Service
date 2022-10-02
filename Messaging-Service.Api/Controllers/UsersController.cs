@@ -22,7 +22,7 @@ namespace Messaging_Service.Api.Controllers
         {
             _userService = userService;
 
-        }
+       }
 
         [AllowAnonymous]
         [HttpPost]

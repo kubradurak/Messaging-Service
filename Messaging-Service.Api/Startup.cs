@@ -35,6 +35,7 @@ namespace Messaging_Service.Api
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IBlockUserService, BlockUserService>();
             services.AddScoped<ITokenServices, JwtTokenServices>();
+            services.AddScoped<IUserActivityLogService, UserActivityLogService>();
             services.Configure<DatabaseSettings>(Configuration.GetSection("DatabaseSettings"));
             services.AddSingleton<IDatabaseSettings>(sp =>
             {
