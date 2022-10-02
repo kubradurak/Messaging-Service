@@ -19,9 +19,9 @@ namespace MessagingService.Base.Dtos
 
         #region static factory methods
 
-        public static ResponseDto<T> Success(T data, int statusCode)
+        public static ResponseDto<T> Success(T data,string message, int statusCode)
         {
-            return new ResponseDto<T> { Data = data, StatusCode = statusCode, IsSuccessful = true };
+            return new ResponseDto<T> { Data = data, StatusMessage = message, StatusCode = statusCode, IsSuccessful = true };
         }
         public static ResponseDto<T> Success(int statusCode)
         {

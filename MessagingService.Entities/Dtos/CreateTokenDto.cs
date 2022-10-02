@@ -4,10 +4,8 @@ using System.Text;
 
 namespace MessagingService.Entities.Dtos
 {
-    public class SendMessageDto
+    public class CreateTokenDto
     {
-        public string To { get; set; }
-        public string Content { get; set; }
-
+        public string UserName { get; set; }
     }
 }

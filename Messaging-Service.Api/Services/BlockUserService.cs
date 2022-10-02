@@ -23,26 +23,26 @@ namespace Messaging_Service.Api.Services
             _mapper = mapper;
         }
 
-        public async Task<ResponseDto<BlockUser>> BlockUserAsync(BlockUserDto user)
+        public async Task<ResponseDto<BlockUser>> BlockUserAsync(BlockUser user)
         {
             var _user = _mapper.Map<BlockUser>(user);
             var blockedUser = _userService.CheckByUserName(_user.BlockedUserName);
-            if (!blockedUser) return ResponseDto<BlockUser>.Fail("Böyle bir kullanıcı adı yok! Göndereceğiniz kullanıcı adını kontrol ediniz!", 400);
+            if (!blockedUser) return ResponseDto<BlockUser>.Fail("BlockUserService.BlockUserAsync(): Username is not valid. Check the username!", 404);
             _user.IsLocked = true;
             await _blockUserCollection.InsertOneAsync(_user);
 
-            return ResponseDto<BlockUser>.Success(_user, 200);
+            return ResponseDto<BlockUser>.Success(_user,"Created", 201);
         }
-        public async Task<ResponseDto<BlockUser>> RemoveBlockUserAsync(BlockUserDto user)
+        public async Task<ResponseDto<BlockUser>> RemoveBlockUserAsync(BlockUser user)
         {
             var _user = _mapper.Map<BlockUser>(user);
             var blockedUser = _userService.CheckByUserName(_user.BlockedUserName);
-            if (!blockedUser) return ResponseDto<BlockUser>.Fail("Böyle bir kullanıcı adı yok! Göndereceğiniz kullanıcı adını kontrol ediniz!", 400);
+            if (!blockedUser) return ResponseDto<BlockUser>.Fail("BlockUserService.RemoveBlockUserAsync(): Username is not valid. Check the username.", 404);
 
             var blockUser = CheckBlockedUser(_user);
             await _blockUserCollection.DeleteOneAsync(x => x.Id == blockUser.Id);
 
-            return ResponseDto<BlockUser>.Success(_user, 200);
+            return ResponseDto<BlockUser>.Success(_user,"OK", 200);
         }
 
         public bool IsBlockedUser(BlockUserDto user)

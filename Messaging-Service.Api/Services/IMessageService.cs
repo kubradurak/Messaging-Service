@@ -8,7 +8,7 @@ namespace Messaging_Service.Api.Services
 {
     public interface IMessageService
     {
-        Task<ResponseDto<Message>> SendMessageAsync(SendMessageDto sendMessage);
+        Task<ResponseDto<Message>> SendMessageAsync(Message sendMessage);
         Task<ResponseDto<List<MessageHistoryDto>>> GetMessageHistoryAsync(MessageHistoryItemDto viewer);
         Task<List<MessageHistoryDto>> GetMessageHistoryList(MessageHistoryItemDto viewer);
 

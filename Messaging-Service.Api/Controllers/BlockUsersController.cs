@@ -1,8 +1,11 @@
-﻿using Messaging_Service.Api.Services;
+﻿using AutoMapper;
+using Messaging_Service.Api.Services;
 using MessagingService.Entities.Dtos;
+using MessagingService.Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NLog.Fluent;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Messaging_Service.Api.Controllers
@@ -12,9 +15,12 @@ namespace Messaging_Service.Api.Controllers
     public class BlockUsersController : ControllerBase
     {
         private readonly IBlockUserService _blockUserService;
-        public BlockUsersController(IBlockUserService blockUserService)
+        private readonly IMapper _mapper;
+
+        public BlockUsersController(IBlockUserService blockUserService, IMapper mapper)
         {
             _blockUserService = blockUserService;
+            _mapper = mapper;
 
         }
 
@@ -24,13 +30,14 @@ namespace Messaging_Service.Api.Controllers
         {
             if (blockUser == null || string.IsNullOrWhiteSpace(blockUser.BlockedUserName))
             {
-                string errorMessage = string.Format("", blockUser.BlockedUserName);
+                string errorMessage = string.Format("BlockUserAsync: Please fill in the required fields!Parametres: BlockedUserName:{0}", blockUser.BlockedUserName);
                 Log.Error(errorMessage);
-                return BadRequest("Lütfen zorunlu alanı doldurunuz.");
+                return BadRequest("Please fill in the required fields!");
             }
-
-            // parameters.SenderUserId = int.Parse(User.FindFirst("UserId")?.Value); OTURUMDAN KULLANICININ ID DEĞERİNİ GETİRİYOR.
-            var response = await _blockUserService.BlockUserAsync(blockUser);
+            var _blockUser = _mapper.Map<BlockUser>(blockUser);
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            _blockUser.BlockerUserName = identity?.FindFirst("unique_name")?.Value;
+            var response = await _blockUserService.BlockUserAsync(_blockUser);
             return Ok(response);
         }
         [HttpDelete]
@@ -39,13 +46,14 @@ namespace Messaging_Service.Api.Controllers
         {
             if (blockUser == null || string.IsNullOrWhiteSpace(blockUser.BlockedUserName))
             {
-                string errorMessage = string.Format("", blockUser.BlockedUserName);
+                string errorMessage = string.Format("BlockUserAsync: Please fill in the required fields!Parametres: BlockedUserName:{0}}", blockUser.BlockedUserName);
                 Log.Error(errorMessage);
-                return BadRequest("Lütfen zorunlu alanı doldurunuz.");
+                return BadRequest("Please fill in the required fields!");
             }
-
-            // parameters.SenderUserId = int.Parse(User.FindFirst("UserId")?.Value); OTURUMDAN KULLANICININ ID DEĞERİNİ GETİRİYOR.
-            var response = await _blockUserService.RemoveBlockUserAsync(blockUser);
+            var _blockUser = _mapper.Map<BlockUser>(blockUser);
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            _blockUser.BlockerUserName = identity?.FindFirst("unique_name")?.Value;
+            var response = await _blockUserService.RemoveBlockUserAsync(_blockUser);
             return Ok(response);
         }
     }

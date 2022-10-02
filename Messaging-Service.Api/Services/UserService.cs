@@ -13,13 +13,16 @@ namespace Messaging_Service.Api.Services
     {
         private readonly IMongoCollection<User> _userCollection;
         private readonly IMapper _mapper;
+        private readonly ITokenServices _tokenServices;
 
-        public UserService(IDatabaseSettings databaseSettings, IMapper mapper)
+
+        public UserService(IDatabaseSettings databaseSettings, IMapper mapper, ITokenServices tokenServices)
         {
             var client = new MongoClient(databaseSettings.ConnectionString);
             var database = client.GetDatabase(databaseSettings.DatabaseName);
             _userCollection = database.GetCollection<User>(databaseSettings.UserCollections);
             _mapper = mapper;
+            _tokenServices = tokenServices;
         }
 
         public async Task<List<User>> GetAll()
@@ -32,12 +35,12 @@ namespace Messaging_Service.Api.Services
             var _user = _mapper.Map<User>(registerUser);
             var isUsernameExist = CheckByUserName(registerUser.UserName);
             var isEmailExist = CheckByEmail(registerUser.Email);
-            if (isUsernameExist) return ResponseDto<User>.Fail("Bu username ait kayıt bulunuyor! Lütfen başka bir username ile deneyin!", 400);
-            else if (isEmailExist) return ResponseDto<User>.Fail("Bu email adresine bağlı kullanıcı bulunuyor! Lütfen başka bir email adresi ile deneyin!", 400);
+            if (isUsernameExist) return ResponseDto<User>.Fail("There is a user account by the username! Please try with another username!", 406);
+            else if (isEmailExist) return ResponseDto<User>.Fail("There is a user account by the email! Please try with another email!", 406);
             else
             {
                 await _userCollection.InsertOneAsync(_user);
-                return ResponseDto<User>.Success(_user, 200);
+                return ResponseDto<User>.Success(_user, "Created", 201);
             }
         }
         public bool CheckByUserName(string userName)
@@ -64,9 +67,12 @@ namespace Messaging_Service.Api.Services
             var _user = _mapper.Map<User>(userLogin);
             var isUsernameExist = CheckByUserName(userLogin.UserName);
             var isLoginUser = CheckLoginByUsernameAndPassword(userLogin.UserName, userLogin.Password);
-            if (!isUsernameExist) return ResponseDto<User>.Fail("Kullanıcı bulunamadı.Lütfen üye kaydı oluşturun!", 400);
-            else if (!isLoginUser) return ResponseDto<User>.Fail("Kullanıcı adı ya da şifre yanlış.Kontrol ediniz!", 400);
-            else return ResponseDto<User>.Success(_user, 200);
+            if (!isUsernameExist) return ResponseDto<User>.Fail("User not found. Please register!", 401);
+            else if (!isLoginUser) return ResponseDto<User>.Fail("Username or password is incorrect. Please check!", 400);
+            else {
+                var token = _tokenServices.CreateToken(new CreateTokenDto { UserName = userLogin.UserName });
+            }
+            return ResponseDto<User>.Success(_user,"OK", 200);
         }
     }
 }

@@ -16,31 +16,36 @@ namespace Messaging_Service.Api.Services
     {
         private readonly IMongoCollection<Message> _messageCollection;
         private readonly IUserService _userService;
+        private readonly IBlockUserService _blockUserService;
         private readonly IMapper _mapper;
 
-        public MessageService(IDatabaseSettings databaseSettings, IUserService userService, IMapper mapper)
+        public MessageService(IDatabaseSettings databaseSettings, IUserService userService, IMapper mapper, IBlockUserService blockUserService)
         {
             var client = new MongoClient(databaseSettings.ConnectionString);
             var database = client.GetDatabase(databaseSettings.DatabaseName);
             _messageCollection = database.GetCollection<Message>(databaseSettings.MessageCollections);
             _userService = userService;
+            _blockUserService = blockUserService;
             _mapper = mapper;
-        }
+        } 
 
         public async Task<ResponseDto<List<MessageHistoryDto>>> GetMessageHistoryAsync(MessageHistoryItemDto messageHistoryItem)
         {
             var _sendMessage = _mapper.Map<Message>(messageHistoryItem);
-
+            if (_sendMessage.SenderUserName == null)
+            {
+                return ResponseDto<List<MessageHistoryDto>>.Fail("Please login", 401);
+            }
             var toUser = _userService.CheckByUserName(messageHistoryItem.To);
-            if (!toUser) return ResponseDto<List<MessageHistoryDto>>.Fail("bulunamadı", 404);
+            if (!toUser) return ResponseDto<List<MessageHistoryDto>>.Fail("Not found!", 404);
 
             var messageList = await GetMessageHistoryList(messageHistoryItem);
             if (messageList.Any())
             {
-                Log.Info("Mesaj geçmişi bulunamadı!");
+                Log.Info("Message history not found!");
             }
 
-            return ResponseDto<List<MessageHistoryDto>>.Success(messageList, 200);
+            return ResponseDto<List<MessageHistoryDto>>.Success(messageList,"OK", 200);
         }
 
         public async Task<List<MessageHistoryDto>> GetMessageHistoryList(MessageHistoryItemDto messageHistoryItem)
@@ -56,13 +61,22 @@ namespace Messaging_Service.Api.Services
                 MessageHistoryList = list
             }).ToList();
         }
-        public async Task<ResponseDto<Message>> SendMessageAsync(SendMessageDto sendMessage)
+        public async Task<ResponseDto<Message>> SendMessageAsync(Message sendMessage)
         {
             var _sendMessage = _mapper.Map<Message>(sendMessage);
-
+            if (_sendMessage.SenderUserName == null)
+            {
+                return ResponseDto<Message>.Fail("Please login", 401);
+            }
             var receiverUser = _userService.CheckByUserName(sendMessage.To);
-            if (!receiverUser) return ResponseDto<Message>.Fail("Böyle bir kullanıcı adı yok! Göndereceğiniz kullanıcı adını kontrol ediniz!", 400);
+            if (!receiverUser) return ResponseDto<Message>.Fail("Username is not valid.Please check!", 404);
 
+            // kullanıcı blocku mu? 
+            BlockUser blockUser = new BlockUser { BlockedUserName = sendMessage.SenderUserName,
+            BlockerUserName = sendMessage.To};
+
+            var temp = _blockUserService.CheckBlockedUser(blockUser);
+            if (temp != null) return ResponseDto<Message>.Fail("Can't send message!", 401);
             await _messageCollection.InsertOneAsync(new Message
             {
                 SenderUserName = sendMessage.SenderUserName,
@@ -72,7 +86,7 @@ namespace Messaging_Service.Api.Services
 
             });
 
-            return ResponseDto<Message>.Success(_sendMessage, 200);
+            return ResponseDto<Message>.Success(_sendMessage,"Created", 201);
         }
     }
 }

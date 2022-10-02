@@ -7,8 +7,8 @@ namespace Messaging_Service.Api.Services
 {
     public interface IBlockUserService
     {
-        Task<ResponseDto<BlockUser>> BlockUserAsync(BlockUserDto user);
-        Task<ResponseDto<BlockUser>> RemoveBlockUserAsync(BlockUserDto user);
+        Task<ResponseDto<BlockUser>> BlockUserAsync(BlockUser user);
+        Task<ResponseDto<BlockUser>> RemoveBlockUserAsync(BlockUser user);
         bool IsBlockedUser(BlockUserDto user);
         BlockUser CheckBlockedUser(BlockUser user);
 
