@@ -15,7 +15,7 @@ namespace Messaging_Service.Api.Services
         private readonly IMongoCollection<UserActivityLog> _userActivityLogCollection;
         private readonly IMapper _mapper;
 
-        public UserActivityLogService(IDatabaseSettings databaseSettings, IMongoCollection<UserActivityLog> mongoCollection, IMapper mapper)
+        public UserActivityLogService(IDatabaseSettings databaseSettings,IMapper mapper)
         {
             var client = new MongoClient(databaseSettings.ConnectionString);
             var database = client.GetDatabase(databaseSettings.DatabaseName);
