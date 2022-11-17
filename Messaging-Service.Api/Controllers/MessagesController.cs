@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace Messaging_Service.Api.Controllers
 {
+    /// <summary>
+    /// Messages Controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class MessagesController : ControllerBase
@@ -22,12 +25,23 @@ namespace Messaging_Service.Api.Controllers
         private readonly IMessageService _messageService;
         private readonly IMapper _mapper;
 
+        ///ctor
         public MessagesController(IMessageService messageService, IMapper mapper)
         {
             _messageService = messageService;
             _mapper = mapper;
         }
-
+        /// <summary>
+        /// Send message to user by username.
+        /// </summary>
+        /// ///  Sample request:
+        ///     POST Messages/SendMail
+        ///     {
+        ///         "To" : "kub",
+        ///         "Content": "selam"
+        ///      }
+        /// <param name="sendMessage"></param>
+        /// <returns>Send message response</returns>
         [HttpPost]
         [Route("SendMail")]
         public async Task<IActionResult> SendMessageAsync(SendMessageDto sendMessage)
@@ -45,7 +59,17 @@ namespace Messaging_Service.Api.Controllers
             return Ok(response);
         }
 
-
+        /// <summary>
+        /// Get message history between two users with pagination.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///     GET Messages/GetMessageHistory/kub/1/10
+        /// </remarks>
+        /// <param name="to">To user name</param>
+        /// <param name="pageIndex">Page index for pagination</param>
+        /// <param name="pageSize">Page size for pagination</param>
+        /// <returns>Message history between two users</returns>
         [HttpGet]
         [Route("GetMessageHistory/{to}/{pageIndex:int}/{pageSize:int}")]
         public async Task<IActionResult> GetMessageHistoryAsync([FromRoute] string to, [FromRoute] int pageIndex, [FromRoute] int pageSize)

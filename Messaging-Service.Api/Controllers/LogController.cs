@@ -6,16 +6,29 @@ using System.Threading.Tasks;
 
 namespace Messaging_Service.Api.Controllers
 {
+    /// <summary>
+    /// Log Controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class LogController : ControllerBase
     {
         private readonly IUserActivityLogService _userActivityLogService;
 
+        /// ctor
         public LogController(IUserActivityLogService userActivityLogService)
         {
             _userActivityLogService = userActivityLogService;
         }
+        /// <summary>
+        /// User Activity Logs
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///     GET Log/UserActivityLogs
+        /// </remarks>
+        /// <param name="email"></param>
+        /// <returns>Last three acctivities from user </returns>
         [HttpGet]
         [Route("UserActivityLogs")]
         public async Task<IActionResult> GetUserActivityLogsAsync(string email)

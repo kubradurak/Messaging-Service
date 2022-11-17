@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace Messaging_Service.Api.Controllers
 {
+
+
+    /// <summary>
+    /// Block Users Controller
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class BlockUsersController : ControllerBase
@@ -17,13 +22,26 @@ namespace Messaging_Service.Api.Controllers
         private readonly IBlockUserService _blockUserService;
         private readonly IMapper _mapper;
 
+        /// ctor
         public BlockUsersController(IBlockUserService blockUserService, IMapper mapper)
         {
             _blockUserService = blockUserService;
             _mapper = mapper;
 
         }
-
+        /// <summary>
+        /// Block User
+        /// </summary>
+        /// <remarks>
+        ///  Sample request:
+        ///     POST BlockUsers/BlockUser
+        ///     {
+        ///         "BlockerUserName" : "kub",
+        ///         "BlockedUserName": "beyza"
+        ///      }
+        /// </remarks>
+        /// <param name="blockUser"></param>
+        /// <returns>reponse</returns>
         [HttpPost]
         [Route("BlockUser")]
         public async Task<IActionResult> BlockUserAsync(BlockUserDto blockUser)
@@ -40,6 +58,19 @@ namespace Messaging_Service.Api.Controllers
             var response = await _blockUserService.BlockUserAsync(_blockUser);
             return Ok(response);
         }
+        /// <summary>
+        /// Remove Block User
+        /// </summary>
+        /// <remarks>
+        ///  Sample request:
+        ///     DELETE BlockUsers/RemoveBlockUser
+        ///     {
+        ///         "BlockerUserName" : "kub",
+        ///         "BlockedUserName": "beyza"
+        ///      }
+        /// </remarks>
+        /// <param name="blockUser"></param>
+        /// <returns>responce</returns>
         [HttpDelete]
         [Route("RemoveBlockUser")]
         public async Task<IActionResult> RemoveBlockUserAsync(BlockUserDto blockUser)
